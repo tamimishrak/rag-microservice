@@ -7,6 +7,9 @@ import { authUser } from './database';
 import { eq } from 'drizzle-orm';
 import * as bcrypt from 'bcrypt';
 import { KAFKA_TOPICS } from '@app/kafka/constants/kafka.constants';
+import { UserRegisteredEvent } from './interface/register.interface';
+import { randomUUID } from 'crypto';
+import { UserLoggedInEvent } from './interface/login.interface';
 
 @Injectable()
 export class AuthService implements OnModuleInit {
@@ -41,13 +44,24 @@ export class AuthService implements OnModuleInit {
       .values({ email, password: hashedPassword })
       .returning();
 
-    this.kafkaClient.emit(KAFKA_TOPICS.USER_REGISTERED, {
-      userId: user.id,
-      email: user.email,
-      password: user.password,
+    const registeredEvent: UserRegisteredEvent = {
+      eventId: randomUUID(),
+      eventType: KAFKA_TOPICS.USER_REGISTERED,
       timestamp: new Date().toISOString(),
-    });
+      version: 1,
+      data: {
+        userId: user.id,
+        email: user.email,
+        password: user.password,
+        registeredAt: new Date().toISOString(),
+      }
+    }
 
+    this.kafkaClient.emit(KAFKA_TOPICS.USER_REGISTERED, registeredEvent);
+
+    this.logger.log(`USER REGISTERED MESSAGE EMITTED TO ${KAFKA_TOPICS.USER_REGISTERED}`)
+
+    this.logger.log(`USER CREATED SUCCESSFULLY, ${user}`);
     return { message: 'User registered successfully', userId: user.id };
   }
 
@@ -64,10 +78,21 @@ export class AuthService implements OnModuleInit {
 
     const token = this.jwtService.sign({ sub: user.id, email: user.email });
 
-    this.kafkaClient.emit(KAFKA_TOPICS.USER_LOGGED_IN,{
-      userId: user.id,
-      timestamp: new Date().toISOString()
-    });
+    const loggedInEvent: UserLoggedInEvent = {
+      eventId: randomUUID(),
+      eventType: KAFKA_TOPICS.USER_REGISTERED,
+      timestamp: new Date().toISOString(),
+      version: 1,
+      data: {
+        userId: user.id,
+      }
+    }
+
+    this.kafkaClient.emit(KAFKA_TOPICS.USER_LOGGED_IN, loggedInEvent);
+
+    this.logger.log(`USER LOGGED IN MESSAGE EMITTED TO ${KAFKA_TOPICS.USER_LOGGED_IN}`)
+
+    this.logger.log(`USER LOGGED IN SUCCESSFULLY`);
 
     return {
       access_token: token,
@@ -76,9 +101,5 @@ export class AuthService implements OnModuleInit {
         email: user.email,
       },
     };
-  }
-
-  getHello(): string {
-    return 'Hello World!';
   }
 }
