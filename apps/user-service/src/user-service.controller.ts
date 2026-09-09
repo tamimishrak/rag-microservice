@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Put } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Put } from '@nestjs/common';
 import { UserService } from './user-service.service';
 import { EventPattern, Payload } from '@nestjs/microservices';
 import { KAFKA_TOPICS } from '@app/kafka/constants/kafka.constants';
@@ -14,14 +14,13 @@ export class UserServiceController {
     await this.userService.initializeUser(payload);
   }
 
-  // Todo Replace @Param with @Header('x-user-id')
-  @Get(':id')
-  async getProfile(@Param('id') userId: string) {
+  @Get('profile')
+  async getProfile(@Headers('x-user-id') userId: string) {
     return this.userService.getUser(userId);
   }
 
-  @Put(':id')
-  async updateProfile(@Param('id') userId: string, @Body() dto: UpdateUserDto) {
+  @Put('profile')
+  async updateProfile(@Headers('x-user-id') userId: string, @Body() dto: UpdateUserDto) {
     return this.userService.updateUser(userId, dto);
   }
 }
