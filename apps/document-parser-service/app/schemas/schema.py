@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel, Field
 
 
@@ -26,11 +26,16 @@ class DocumentCreatedEvent(BaseModel):
 class DocumentParsedData(BaseModel):
   documentId: str
   userId: str
+  fileName: Optional[str] = Field(default=None, description="Original filename for aget context")
   status: DocumentStatus
   
   vectorCollection: Optional[str] = Field(
     default=None, 
     description="Name of the collection in ChromaDB"
+  )
+  vectorIds: Optional[List[str]] = Field(
+    default_factory=list,
+    description="List of specific chunk IDs inserted into ChromaDB for deletion/selective retrieval"
   )
   totalChunks: Optional[int] = Field(
     default=None, 

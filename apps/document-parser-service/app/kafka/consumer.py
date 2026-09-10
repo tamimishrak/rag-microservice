@@ -75,6 +75,7 @@ class KafkaConsumerService:
       parsed_data = DocumentParsedData(
         documentId=data.documentId,
         userId=data.userId,
+        fileName=data.fileName,
         status=DocumentStatus.COMPLETED,
         vectorCollection=result["vectorCollection"],
         totalChunks=result["totalChunks"],
@@ -86,6 +87,7 @@ class KafkaConsumerService:
       parsed_data = DocumentParsedData(
         documentId=data.documentId,
         userId=data.userId,
+        fileName=data.fileName,
         status=DocumentStatus.FAILED,
         failureReason=str(e),
       )
