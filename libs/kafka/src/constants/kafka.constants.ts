@@ -8,5 +8,6 @@ export const KAFKA_TOPICS = {
   USER_LOGGED_IN: 'user.logged_in',
 
   // DOCUMENT SERVICE
-  DOCUMENT_CREATED: 'document.created'
+  DOCUMENT_CREATED: 'document.created',
+  DOCUMENT_PARSED: 'document.parsed'
 } as const;

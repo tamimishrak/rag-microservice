@@ -5,7 +5,8 @@ export const statusEnumValues = pgEnum('status', [
   'PENDING',
   'PROCESSING',
   'COMPLETED',
-  'FAILED'
+  'FAILED',
+  'READY'
 ]);
 
 export const documents = pgTable('documents', {

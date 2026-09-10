@@ -1,5 +1,14 @@
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException,
+  OnModuleDestroy,
+  OnModuleInit
+} from '@nestjs/common';
 import { KAFKA_SERVICE } from '@app/kafka';
-import { BadRequestException, Inject, Injectable, InternalServerErrorException, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { ClientKafka } from '@nestjs/microservices';
 import { DatabaseService } from './database/database.service';
 import { documents } from './database';
@@ -8,6 +17,9 @@ import { randomUUID } from 'crypto';
 import { KAFKA_TOPICS } from '@app/kafka/constants/kafka.constants';
 import { existsSync } from 'fs';
 import { unlink } from 'fs/promises';
+import { DocumentParsedEvent } from './interface/document-parsed-result.interface';
+import { and, eq } from 'drizzle-orm';
+
 
 @Injectable()
 export class DocumentService implements OnModuleInit, OnModuleDestroy {
@@ -24,6 +36,39 @@ export class DocumentService implements OnModuleInit, OnModuleDestroy {
 
   async onModuleDestroy() {
     await this.kafkaClient.close();
+  }
+
+  async saveParsedServiceResult(payload: DocumentParsedEvent) {
+    const { documentId, userId, status, failureReason } = payload.data;
+
+    this.logger.log(`UPDATING DOCUMENT STATUS FOR DOCUMENT ID: ${documentId}, USER ID: ${userId}, STATUS: ${status}`);
+
+    try {
+      const [updatedDocument] = await this.dbService.db
+        .update(documents)
+        .set({
+          status,
+          failureReason: failureReason ?? null,
+          updatedAt: new Date(),
+        })
+        .where(eq(documents.id, documentId))
+        .returning();
+
+      if (!updatedDocument) {
+        this.logger.warn(`Document with ID ${documentId} not found. Skipping update.`);
+        return { message: 'Document Not Found', documentId };
+      }
+
+      // TODO/ Good to have Kafka emit document.parsed-derived event for Stats Service
+      return {
+        message: 'Document Status Updated',
+        documentId,
+        status: updatedDocument.status,
+      };
+    } catch (error: any) {
+      this.logger.error(`Failed to update document status for ID: ${documentId}. Error: ${error.message}`, error.stack);
+      throw error;
+    }
   }
 
   async uploadDocument(userId: string, file: Express.Multer.File) {
@@ -85,7 +130,37 @@ export class DocumentService implements OnModuleInit, OnModuleDestroy {
         await unlink(filePath);
       } catch (err) {
         this.logger.error(`Failed to delete file: ${filePath}`, err);
+        throw err;
       }
     }
+  }
+
+  async getDocument(userId: string, documentId: string) {
+    try {
+      this.logger.log(`Querying documentId: "${documentId}" for userId: "${userId}"`);
+      const [document] = await this.dbService.db
+        .select()
+        .from(documents)
+        .where(and(eq(documents.id, documentId), eq(documents.userId, userId)))
+        .limit(1)
+      
+      if(!document) throw new NotFoundException('The document does not exist');
+
+      return document;
+      
+    } catch (error) {
+      this.logger.log(`Failed to get the user ${error}`);
+      throw error;
+    }
+  }
+
+  async getAllDocument(userId: string) {
+    const allDocument = await this.dbService.db
+    .select()
+    .from(documents)
+    .where(eq(documents.userId, userId))
+    
+
+    return allDocument;
   }
 }

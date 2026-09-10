@@ -37,6 +37,38 @@ export class DocumentService {
     }
   }
 
+  async getDocument(userId: string, documentId: string) {
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get(`${this.documentServiceUrl}/${documentId}`, {
+          headers: {
+            'x-user-id': userId,
+          },
+        }),
+      );
+
+      return response.data;
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  async getAllDocument(userId: string) {
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get(`${this.documentServiceUrl}/`, {
+          headers: {
+            'x-user-id': userId,
+          },
+        }),
+      );
+
+      return response.data;
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
   private handleError(error: unknown): never {
     const err = error as {
       response?: { data: string | object; status: number };

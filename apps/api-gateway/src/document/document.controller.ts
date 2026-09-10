@@ -1,4 +1,4 @@
-import { BadRequestException, Controller, Post, Request, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Controller, Get, Param, Post, Request, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { DocumentService } from './document.service';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -27,5 +27,23 @@ export class DocumentController {
     @UploadedFile() file: Express.Multer.File
   ) {
     return this.documentService.uploadDocument(req.user.userId, file);
+  }
+
+  @Get()
+  @UseGuards(AuthGuard('jwt'))
+  getAllDocument(
+    @Request() req: { user: { userId: string } }
+  ) {
+    return this.documentService.getAllDocument(req.user.userId);
+  }
+
+
+  @Get(':id')
+  @UseGuards(AuthGuard('jwt'))
+  getDocument(
+    @Request() req: { user: { userId: string } },
+    @Param('id') documentId: string,
+  ) {
+    return this.documentService.getDocument(req.user.userId, documentId);
   }
 }

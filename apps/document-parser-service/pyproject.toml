@@ -1,0 +1,30 @@
+[project]
+name = "document-parser-service"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Tamim Ishrak", email = "ishraksanjid6@gmail.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "aiokafka>=0.14.0",
+    "chromadb>=1.5.9",
+    "fastapi>=0.141.1",
+    "langchain>=1.4.0",
+    "langchain-chroma>=1.1.0",
+    "langchain-community>=0.4.2",
+    "langchain-ollama>=1.1.0",
+    "loguru>=0.7.3",
+    "pydantic-settings>=2.15.0",
+    "pypdf>=6.18.0",
+    "python-dotenv>=1.2.3",
+    "uvicorn[standard]>=0.52.4",
+]
+
+[project.scripts]
+document-parser-service = "document_parser_service:main"
+
+[build-system]
+requires = ["uv_build>=0.12.10,<0.13.0"]
+build-backend = "uv_build"
