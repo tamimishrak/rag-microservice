@@ -37,6 +37,15 @@
         "tsConfigPath": "libs/common/tsconfig.lib.json"
       }
     },
+    "conversation-service": {
+      "type": "application",
+      "root": "apps/conversation-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/conversation-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/conversation-service/tsconfig.app.json"
+      }
+    },
     "document-service": {
       "type": "application",
       "root": "apps/document-service",

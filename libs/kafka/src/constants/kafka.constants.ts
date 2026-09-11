@@ -9,5 +9,12 @@ export const KAFKA_TOPICS = {
 
   // DOCUMENT SERVICE
   DOCUMENT_CREATED: 'document.created',
-  DOCUMENT_PARSED: 'document.parsed'
+  DOCUMENT_PARSED: 'document.parsed',
+
+  // KNOWLEDGE
+  KNOWLEDGE_READY: 'knowledge.ready',
+
+  //CONVERSATION SERVICE
+  CONVERSATION_CREATED: 'conversation.created',
+  MESSAGE_CREATED: 'message.created'
 } as const;

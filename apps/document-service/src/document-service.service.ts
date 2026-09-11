@@ -19,6 +19,7 @@ import { existsSync } from 'fs';
 import { unlink } from 'fs/promises';
 import { DocumentParsedEvent } from './interface/document-parsed-result.interface';
 import { and, eq } from 'drizzle-orm';
+import { KnowledgeReadyEvent } from './interface/document-status.interface';
 
 
 @Injectable()
@@ -43,6 +44,38 @@ export class DocumentService implements OnModuleInit, OnModuleDestroy {
 
     this.logger.log(`UPDATING DOCUMENT STATUS FOR DOCUMENT ID: ${documentId}, USER ID: ${userId}, STATUS: ${status}`);
 
+    try {
+      const [updatedDocument] = await this.dbService.db
+        .update(documents)
+        .set({
+          status,
+          failureReason: failureReason ?? null,
+          updatedAt: new Date(),
+        })
+        .where(eq(documents.id, documentId))
+        .returning();
+
+      if (!updatedDocument) {
+        this.logger.warn(`Document with ID ${documentId} not found. Skipping update.`);
+        return { message: 'Document Not Found', documentId };
+      }
+
+      // TODO/ Good to have Kafka emit document.parsed-derived event for Stats Service
+      return {
+        message: 'Document Status Updated',
+        documentId,
+        status: updatedDocument.status,
+      };
+    } catch (error: any) {
+      this.logger.error(`Failed to update document status for ID: ${documentId}. Error: ${error.message}`, error.stack);
+      throw error;
+    }
+  }
+
+  async updateDocumentStatus(payload: KnowledgeReadyEvent) {
+    const { documentId, userId, status, failureReason } = payload.data;
+
+    this.logger.log(`UPDATING DOCUMENT STATUS FOR KNOWLEDGE READY EVENT DOCUMENT ID: ${documentId}, USER ID: ${userId}, STATUS: ${status}`);
     try {
       const [updatedDocument] = await this.dbService.db
         .update(documents)

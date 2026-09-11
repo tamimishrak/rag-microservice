@@ -8,6 +8,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from '@app/common/auth';
 import { DocumentModule } from './document/document.module';
+import { ConversationModule } from './conversation/conversation.module';
 
 @Module({
   imports: [
@@ -22,7 +23,8 @@ import { DocumentModule } from './document/document.module';
     PassportModule,
     AuthModule,
     UserModule,
-    DocumentModule
+    DocumentModule,
+    ConversationModule
   ],
   controllers: [AppController],
   providers: [AppService, JwtStrategy],
