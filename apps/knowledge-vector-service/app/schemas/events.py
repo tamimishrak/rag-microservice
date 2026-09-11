@@ -59,6 +59,7 @@ class KnowledgeReadyData(BaseModel):
   documentId: uuid.UUID
   userId: uuid.UUID
   status: KnowledgeStatus
+  isActive: bool
   totalChunks: Optional[int] = None
   failureReason: Optional[str] = None
 

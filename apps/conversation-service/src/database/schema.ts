@@ -1,25 +1,37 @@
+import { unique } from 'drizzle-orm/pg-core';
+import { integer } from 'drizzle-orm/pg-core';
 import { pgTable, uuid, varchar, text, timestamp, pgEnum } from 'drizzle-orm/pg-core';
 
 export const messageRoleEnum = pgEnum('message_role', [
-  'USER', 
-  'ASSISTANT', 
+  'USER',
+  'ASSISTANT',
   'SYSTEM'
 ]);
 
-export const conversations = pgTable('conversations', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id').notNull(),
-  documentId: uuid('document_id').notNull(),   
-  title: varchar('title', { length: 255 }),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
-});
+export const conversations = pgTable(
+  'conversations', 
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: uuid('user_id').notNull(),
+    documentId: uuid('document_id').notNull(),
+    title: varchar('title', { length: 255 }),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+  },
+  (table) => [
+    unique('user_doc_unique_idx').on(table.userId, table.documentId),
+  ]
+);
 
 export const messages = pgTable('messages', {
   id: uuid('id').defaultRandom().primaryKey(),
   conversationId: uuid('conversation_id').notNull().references(() => conversations.id),
   role: messageRoleEnum('role').notNull(),
   content: text('content').notNull(),
+  model: varchar('model', { length: 100 }),
+  retrievedChunks: integer('retrieved_chunks'),
+  status: varchar('status', { length: 20 }),          // 'COMPLETED' | 'FAILED'
+  failureReason: text('failure_reason'),
   createdAt: timestamp('created_at').defaultNow(),
 });
 

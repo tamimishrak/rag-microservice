@@ -59,6 +59,7 @@ vector_store
 knowledge
 
 count_code.sh
+push_migration.sh
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json

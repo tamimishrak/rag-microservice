@@ -115,6 +115,7 @@ class KafkaConsumerService:
             documentId=data.documentId,
             userId=data.userId,
             status=KnowledgeStatus.READY,
+            isActive=True,
             totalChunks=data.totalChunks
           ),
         )
@@ -132,6 +133,7 @@ class KafkaConsumerService:
           documentId=data.documentId,
           userId=data.userId,
           status=KnowledgeStatus.FAILED,
+          isActive=False,
           failureReason=str(e),
         ),
       )

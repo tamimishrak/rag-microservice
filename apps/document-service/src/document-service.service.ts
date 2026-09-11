@@ -73,7 +73,7 @@ export class DocumentService implements OnModuleInit, OnModuleDestroy {
   }
 
   async updateDocumentStatus(payload: KnowledgeReadyEvent) {
-    const { documentId, userId, status, failureReason } = payload.data;
+    const { documentId, userId, status, isActive, failureReason } = payload.data;
 
     this.logger.log(`UPDATING DOCUMENT STATUS FOR KNOWLEDGE READY EVENT DOCUMENT ID: ${documentId}, USER ID: ${userId}, STATUS: ${status}`);
     try {
@@ -81,6 +81,7 @@ export class DocumentService implements OnModuleInit, OnModuleDestroy {
         .update(documents)
         .set({
           status,
+          isActive,
           failureReason: failureReason ?? null,
           updatedAt: new Date(),
         })

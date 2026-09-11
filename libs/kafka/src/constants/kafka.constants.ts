@@ -16,5 +16,6 @@ export const KAFKA_TOPICS = {
 
   //CONVERSATION SERVICE
   CONVERSATION_CREATED: 'conversation.created',
-  MESSAGE_CREATED: 'message.created'
+  MESSAGE_CREATED: 'message.created',
+  RESPONSE_GENERATED: 'response.generated' 
 } as const;

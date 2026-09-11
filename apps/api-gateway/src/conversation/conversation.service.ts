@@ -13,6 +13,38 @@ export class ConversationService {
     private readonly httpService: HttpService
   ) {}
 
+  async getConversation(userId: string, conversationId: string) {
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get(`${this.conversationServiceUrl}/${conversationId}`, {
+          headers: {
+            'x-user-id': userId,
+          },
+        }),
+      );
+
+      return response.data;
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  async getAllConversation(userId: string) {
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get(`${this.conversationServiceUrl}`, {
+          headers: {
+            'x-user-id': userId,
+          },
+        }),
+      );
+
+      return response.data;
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
   async startConversation(userId: string, dto: StartConversationDto) {
     try {
       const response = await firstValueFrom(
